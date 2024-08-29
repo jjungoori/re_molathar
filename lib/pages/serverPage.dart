@@ -15,7 +15,13 @@ class ServerPage extends StatelessWidget {
               GameServerController.to.gameServer.value.startServer(8080);
             },
             child: Text('Lobby'),
-          )
+          ),
+          ElevatedButton(
+            onPressed: () {
+              GameServerController.to.gameServer.value.startGame();
+            },
+            child: Text('Start Game'),
+          ),
         ],
       )
     );

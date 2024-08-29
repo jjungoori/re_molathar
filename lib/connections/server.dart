@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 const String SERVER_ID = '0';
+const String NO_SESSION_ID = '-1';
 
 class FixedProtocol{
   static const int HANDSHAKE = 10001;
@@ -13,8 +14,9 @@ class FixedProtocol{
 class Protocol{
   static const int GAME_DATA = 0;
   static const int SECRET_DATA = 1;
-  static const int ACT = 2;
+  static const int GAME_INPUT = 2;
   static const int END = 3;
+  static const int REQUEST = 4;
 
   static const int REGISTER = 100;
 }
@@ -27,8 +29,20 @@ class Data{
   Data({
     required this.type,
     required this.data,
-    required this.sessionId,
+    this.sessionId = NO_SESSION_ID,
   });
+
+  Data copyWith({
+    int? type,
+    Map<String, dynamic>? data,
+    String? sessionId,
+  }) {
+    return Data(
+      type: type ?? this.type,
+      data: data ?? this.data,
+      sessionId: sessionId ?? this.sessionId,
+    );
+  }
 
   factory Data.fromString(String jsonString){
     Map<String, dynamic> json = jsonDecode(jsonString);
@@ -97,9 +111,9 @@ class Server{
       onConnect();
 
       String sessionId = generateSessionId();
+      print("the 1 session id is $sessionId");
       sessions[sessionId] = client;
       sendDataToClient(sessionId, Data(
-        sessionId: SERVER_ID,
         data: {
           'sessionId': sessionId,
         },
@@ -111,7 +125,7 @@ class Server{
   }
 
   void sendDataToClient(String sessionId, Data data){
-    sessions[sessionId]!.write(jsonEncode(data.toJson()));
+    sessions[sessionId]!.write(jsonEncode(data.copyWith(sessionId: SERVER_ID).toJson()));
   }
 
   void _handleConnection(Socket client){

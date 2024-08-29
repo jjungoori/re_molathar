@@ -1,8 +1,11 @@
+import 'package:re_morthar/game/inputHandler.dart';
+
 class Game {
   List<Player> players;
   int currentPlayerIndex = 0;
+  GameInputHandler inputHandler;
 
-  Game(this.players);
+  Game(this.players, this.inputHandler);
 
   void start() async {
     print('Game started');
@@ -13,7 +16,7 @@ class Game {
       print('It\'s ${currentPlayer.name}\'s turn');
 
       // 플레이어의 턴 처리 (예: 플레이어로부터 입력을 받거나, AI 행동 처리)
-      await currentPlayer.takeTurn();
+      await currentPlayer.takeTurn(inputHandler);
 
       // 게임 상태 업데이트 (예: 승리 조건 검사)
       if (checkWinCondition()) {
@@ -38,13 +41,19 @@ class Game {
 
 class Player {
   final String name;
+  final String playerId;
 
-  Player(this.name);
+  Player(this.name, this.playerId);
 
-  Future<void> takeTurn() async {
+  Future<void> takeTurn(GameInputHandler inputHandler) async {
     // 플레이어의 턴 처리 로직 구현
     // 예: 사용자의 입력을 기다리거나, AI가 행동을 결정
     print('$name is taking their turn...');
-    await Future.delayed(Duration(seconds: 1)); // 예시로 1초 대기
+    GameInputData inputData = await inputHandler.requestInput(InputRequest(
+        playerId: playerId,
+        inputType: GameInputType.ACT
+    ));
+    print(inputData.toJson());
+    return;
   }
 }
